@@ -45,7 +45,7 @@ func (s Scanner) Run() {
 			Data, err := hex.DecodeString(probe.Data)
 
 			if err != nil {
-				log.Fatalf("%s[!]%s Error in decoding probe Data. Problem probe: '%s'", utils.ColorRed, utils.ColorReset, probe.Name)
+				log.Fatalf("%s[!]%s Error in decoding probe data. Problem probe: '%s'", utils.ColorRed, utils.ColorReset, probe.Name)
 			}
 
 			_, err = c.Write([]byte(Data))
