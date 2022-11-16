@@ -37,7 +37,6 @@ func main() {
 		val, err := utils.ReadFile(opts.Arg_tf)
 		if err != nil {
 			log.Fatalf("%s[!]%s Error while loading targets from file: %s", utils.ColorRed, utils.ColorReset, err)
-			return
 		}
 		targets = val
 	} else if len(opts.Arg_t) != 0 {
@@ -50,7 +49,6 @@ func main() {
 
 			if err != nil {
 				log.Fatalf("%s[!]%s Error parsing IP range: %s", utils.ColorRed, utils.ColorReset, err)
-				return
 			}
 
 			ips = append(ips, val...)
