@@ -24,7 +24,7 @@ type Scanner struct {
 func (s Scanner) Run() {
 	socketTimeout := time.Duration(s.Arg_st) * time.Millisecond
 
-	// If Ip is Ipv6
+	// If IP is IPv6
 	if strings.Contains(s.Ip, ":") {
 		s.Ip = "[" + s.Ip + "]"
 	}
