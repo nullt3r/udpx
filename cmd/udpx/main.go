@@ -15,11 +15,12 @@ import (
 
 func main() {
 	fmt.Printf(`%s
-     __  _____  ___  __ __          __         
-    / / / / _ \/ _ \/ // /_ _____  / /____ ____
-   / /_/ / // / ___/ _  / // / _ \/ __/ -_) __/
-   \____/____/_/  /_//_/\_,_/_//_/\__/\__/_/  
-                          v1.0.2, by @nullt3r
+      __  ______  ____ _  __
+     / / / / __ \/ __ \ |/ /
+    / / / / / / / /_/ /   / 
+   / /_/ / /_/ / ____/   |  
+   \____/_____/_/   /_/|_|  
+           v1.0.2, by @nullt3r
 
 %s`, utils.ColorCyan, utils.ColorReset)
 
@@ -45,7 +46,7 @@ func main() {
 
 	for _, target := range targets {
 		if strings.Contains(target, "/") {
-			val, err := utils.Ips_from_cidr(target)
+			val, err := utils.IpsFromCidr(target)
 
 			if err != nil {
 				log.Fatalf("%s[!]%s Error parsing IP range: %s", utils.ColorRed, utils.ColorReset, err)
@@ -94,7 +95,7 @@ func main() {
 		guard <- struct{}{}
 		go func(ip string) {
 			defer wg.Done()
-			scanner := scan.Scanner{ip, probes.Probes, opts.Arg_st, opts.Arg_sp, result}
+			scanner := scan.Scanner{Ip: ip, Probes: probes.Probes, Arg_st: opts.Arg_st, Arg_sp: opts.Arg_sp, Result: result}
 			scanner.Run()
 			<-guard
 		}(ip)

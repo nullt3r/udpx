@@ -1,6 +1,6 @@
 package probes
 
-func Get_avail_probes() string {
+func GetProbeNames() string {
 	var avail_probes string
 
 	for i := range Probes {

@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func Ips_from_cidr(cidr string) ([]string, error) {
+func IpsFromCidr(cidr string) ([]string, error) {
 	inc := func(ip net.IP) {
 		for j := len(ip) - 1; j >= 0; j-- {
 			ip[j]++

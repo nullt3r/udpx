@@ -23,7 +23,7 @@ func ParseOptions() *Options {
 	flag.StringVar(&opts.Arg_t, "t", "", "IP/CIDR to scan")
 	flag.StringVar(&opts.Arg_tf, "tf", "", "File containing IPs/CIDRs to scan")
 	flag.StringVar(&opts.Arg_o, "o", "", "Output file to write results")
-	flag.StringVar(&opts.Arg_s, "s", "", fmt.Sprintf("Scan only for a specific service, one of: %s", probes.Get_avail_probes()))
+	flag.StringVar(&opts.Arg_s, "s", "", fmt.Sprintf("Scan only for a specific service, one of: %s", probes.GetProbeNames()))
 	flag.IntVar(&opts.Arg_c, "c", 32, "Maximum number of concurrent connections")
 	flag.BoolVar(&opts.Arg_nr, "nr", false, "Do not randomize addresses")
 	flag.IntVar(&opts.Arg_st, "w", 500, "Maximum time to wait for a response (socket timeout) in ms")
