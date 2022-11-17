@@ -3,7 +3,7 @@
 Fast, single-packet UDP scanner. Supports discovery of more than 45 services with the possibility to add your own. It is lightweight - grab a binary and run it anywhere you want. Linux, Mac Os and Windows are supported but can be built for more platforms.
 
 
-# Options
+## Options
 ```
 
         __  ______  ____ _  __
@@ -32,7 +32,7 @@ Usage of ./udpx-linux-amd64:
     	Maximum time to wait for a response (socket timeout) in ms (default 500)
 ```
 
-# Building
+## Building
 You can grab prebuilt binaries in the release section. If you want to build UDPX from source, follow these steps:
 
 From git:
