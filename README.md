@@ -1,6 +1,6 @@
 # UDPX
 ![Alt text](screenshots/showcase.png)
-Fast, single-packet UDP scanner written in Go. Supports discovery of more than 45 services with the possibility to add your own. It is lightweight - grab a binary and run it anywhere you want. Linux, Mac Os and Windows are supported but can be built for more platforms. The UDPX is not an internet-wide port scanner such as zgrab2 or zmap. The goal was to make it easy to use and portable.
+Fast, single-packet UDP scanner written in Go. Supports discovery of more than 45 services with the possibility to add your own. It is lightweight - grab a binary and run it anywhere you want. Linux, Mac Os and Windows are supported but can be built for more platforms. The UDPX is not an internet-wide port scanner such as zgrab2 or zmap. The goal was to make easy to use and portable UDP probe based scanner.
 
 * It is fast. It can scan whole /16 network in ~20 seconds for a single service.
 * You don't need to instal libpcap or any other dependencies.
