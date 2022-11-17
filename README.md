@@ -16,17 +16,17 @@ A typical technique is to send 0 byte UDP packets to each port on the target mac
 
 To scan a single IP:
 ```
-udpx -t 1.1.1.1 -c 128
+udpx -t 1.1.1.1
 ```
 
-To scan a CIDR:
+To scan a CIDR with maximum of 128 connections and timeout of 1000 ms:
 ```
-udpx -t 1.2.3.4/24 -c 128
+udpx -t 1.2.3.4/24 -c 128 -w 1000
 ```
 
-To scan targets from file:
+To scan targets from file with maximum of 128 connections for only specific service:
 ```
-udpx -tf targets.txt -c 128
+udpx -tf targets.txt -c 128 -s ipmi
 ```
 
 Target can be:
