@@ -60,3 +60,16 @@ The complete list of supported services:
 * xdmcp
 * kerberos
 * ike
+
+# Building
+You can grab prebuilt binaries in the release section. If you want to build UDPX from source, follow these steps:
+
+From git:
+```
+git clone https://github.com/nullt3r/udpx
+go build ./cmd/udpx
+```
+Or via go:
+```
+go install -v https://github.com/nullt3r/udpx@latest
+```
