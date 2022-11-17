@@ -12,6 +12,28 @@ Scanning UDP ports is very different than scanning TCP - you may, or may not get
 
 A typical technique is to send 0 byte UDP packets to each port on the target machine. If we receive an "ICMP Port Unreachable" message, then the port is closed. If an UDP response is received to the probe (unusual), the port is open. If we get no response at all, the state is open or filtered, meaning that the port is either open or packet filters are blocking the communication. This method is not implemented as there is no added value (UDPX tests only for specific protocols).
 
+## Usage
+
+To scan a single IP:
+```
+udpx -t 1.1.1.1 -c 128
+```
+
+To scan a CIDR:
+```
+udpx -t 1.2.3.4/24 -c 128
+```
+
+To scan targets from file:
+```
+udpx -tf targets.txt -c 128
+```
+
+Target can be:
+* IP address
+* CIDR
+* Domain
+
 ## Options
 ```
 
