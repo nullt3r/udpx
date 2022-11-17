@@ -1,6 +1,11 @@
 # UDPX
 ![Alt text](screenshots/showcase.png)
-Fast, single-packet UDP scanner. Supports discovery of more than 45 services with the possibility to add your own. It is lightweight - grab a binary and run it anywhere you want. Linux, Mac Os and Windows are supported but can be built for more platforms.
+Fast, single-packet UDP scanner written in Go. Supports discovery of more than 45 services with the possibility to add your own. It is lightweight - grab a binary and run it anywhere you want. Linux, Mac Os and Windows are supported but can be built for more platforms.
+
+* It is fast. It can scan whole /24 network in few seconds, /16 in 20 minutes (not recommended :)).
+* You don't need to instal libpcap or any other dependencies.
+* Can run on Linux, Mac Os, Windows. Or your Nethunter if you built it for Arm.
+* Customizable. You can add your probes and test for even more protocols!
 
 
 ## Options
