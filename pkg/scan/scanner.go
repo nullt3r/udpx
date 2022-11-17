@@ -36,7 +36,7 @@ func (s Scanner) Run() {
 			c, err := net.Dial("udp", fmt.Sprint(s.Ip, ":", probe.Port))
 
 			if err != nil {
-				log.Printf("%s[!]%s [%s] Error connecting to host '%s': %s", utils.ColorRed, utils.ColorReset, probe.Name, s.Ip, err)
+				log.Printf("%s[!]%s [%s] Error connecting to host '%s': %s", utils.SetColor().Red, utils.SetColor().Reset, probe.Name, s.Ip, err)
 				return
 			}
 
@@ -45,7 +45,7 @@ func (s Scanner) Run() {
 			Data, err := hex.DecodeString(probe.Data)
 
 			if err != nil {
-				log.Fatalf("%s[!]%s Error in decoding probe data. Problem probe: '%s'", utils.ColorRed, utils.ColorReset, probe.Name)
+				log.Fatalf("%s[!]%s Error in decoding probe data. Problem probe: '%s'", utils.SetColor().Red, utils.SetColor().Reset, probe.Name)
 			}
 
 			_, err = c.Write([]byte(Data))
@@ -63,9 +63,9 @@ func (s Scanner) Run() {
 			}
 
 			if recv_length != 0 {
-				log.Printf("%s[*]%s %s:%d (%s)", utils.ColorCyan, utils.ColorReset, s.Ip, probe.Port, probe.Name)
+				log.Printf("%s[*]%s %s:%d (%s)", utils.SetColor().Cyan, utils.SetColor().Reset, s.Ip, probe.Port, probe.Name)
 				if s.Arg_sp {
-					log.Printf("[+] Received packet: %s%s%s...", utils.ColorYellow, hex.EncodeToString(recv_Data), utils.ColorReset)
+					log.Printf("[+] Received packet: %s%s%s...", utils.SetColor().Yellow, hex.EncodeToString(recv_Data), utils.SetColor().Reset)
 				}
 				s.Result <- fmt.Sprintf("%s:%d	%s", s.Ip, probe.Port, probe.Name)
 			}

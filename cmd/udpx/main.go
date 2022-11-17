@@ -20,9 +20,9 @@ func main() {
       / / / / / / / /_/ /   / 
      / /_/ / /_/ / ____/   |  
      \____/_____/_/   /_/|_|  
-         v1.0.0-beta, by @nullt3r
+         v1.0.2-beta, by @nullt3r
 
-%s`, utils.ColorCyan, utils.ColorReset)
+%s`, utils.SetColor().Cyan, utils.SetColor().Reset)
 
 	opts := utils.ParseOptions()
 
@@ -30,13 +30,13 @@ func main() {
 	var ips []string
 
 	if len(opts.Arg_t) == 0 && len(opts.Arg_tf) == 0 {
-		log.Fatalf("%s[!]%s Error, argument -t or -tf is required\n", utils.ColorRed, utils.ColorReset)
+		log.Fatalf("%s[!]%s Error, argument -t or -tf is required\n", utils.SetColor().Red, utils.SetColor().Reset)
 	}
 
 	if len(opts.Arg_tf) != 0 {
 		val, err := utils.ReadFile(opts.Arg_tf)
 		if err != nil {
-			log.Fatalf("%s[!]%s Error while loading targets from file: %s", utils.ColorRed, utils.ColorReset, err)
+			log.Fatalf("%s[!]%s Error while loading targets from file: %s", utils.SetColor().Red, utils.SetColor().Reset, err)
 		}
 		targets = val
 	} else if len(opts.Arg_t) != 0 {
@@ -48,7 +48,7 @@ func main() {
 			val, err := utils.IpsFromCidr(target)
 
 			if err != nil {
-				log.Fatalf("%s[!]%s Error parsing IP range: %s", utils.ColorRed, utils.ColorReset, err)
+				log.Fatalf("%s[!]%s Error parsing IP range: %s", utils.SetColor().Red, utils.SetColor().Reset, err)
 			}
 
 			ips = append(ips, val...)
@@ -64,7 +64,7 @@ func main() {
 				break
 			}
 			if n == len(probes.Probes)-1 {
-				log.Fatalf("%s[!]%s Service '%s' is not supported", utils.ColorRed, utils.ColorReset, opts.Arg_s)
+				log.Fatalf("%s[!]%s Service '%s' is not supported", utils.SetColor().Red, utils.SetColor().Reset, opts.Arg_s)
 			}
 		}
 	}

@@ -29,12 +29,14 @@ func IpsFromCidr(cidr string) ([]string, error) {
 	}
 
 	// If mask is /32 or /31
-	if len(ips) <= 2 {
-		return ips, nil
-	}
+	//if len(ips) <= 2 {
+	//	return ips, nil
+	//}
 
 	// remove network address and broadcast address
-	return ips[1 : len(ips)-1], nil
+	//return ips[1 : len(ips)-1], nil
+
+	return ips, nil
 }
 
 func ReadFile(path string) ([]string, error) {
