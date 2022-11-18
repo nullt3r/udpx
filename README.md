@@ -107,7 +107,7 @@ The complete list of supported services:
 * mdns
 * memcache
 * mssql
-* nat_Port_mapping
+* nat_port_mapping
 * natpmp
 * netbios
 * netis
@@ -117,7 +117,7 @@ The complete list of supported services:
 * pca_nq
 * pca_st
 * pcanywhere
-* Portmap
+* portmap
 * qotd
 * rdp
 * ripv
