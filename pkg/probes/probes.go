@@ -103,7 +103,7 @@ var Probes = []Probe{
 		Port: 1434,
 	},
 	{
-		Name: "nat_Port_mapping",
+		Name: "nat_port_mapping",
 		Data: "0000000000000000000000000000E3B3E483",
 		Port: 5351,
 	},
@@ -153,7 +153,7 @@ var Probes = []Probe{
 		Port: 5632,
 	},
 	{
-		Name: "Portmap",
+		Name: "portmap",
 		Data: "1AA9FFE10000000000000002000186A0000000020000000400000000000000000000000000000000",
 		Port: 111,
 	},
