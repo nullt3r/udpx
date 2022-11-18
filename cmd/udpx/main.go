@@ -20,7 +20,7 @@ func main() {
       / / / / / / / /_/ /   / 
      / /_/ / /_/ / ____/   |  
      \____/_____/_/   /_/|_|  
-         v1.0.3-beta, by @nullt3r
+         v1.0.3, by @nullt3r
 
 %s`, utils.SetColor().Cyan, utils.SetColor().Reset)
 
