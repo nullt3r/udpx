@@ -143,3 +143,6 @@ The complete list of supported services:
 * xdmcp
 * kerberos
 * ike
+
+## Disclaimer
+I am not responsible for any damages. You are responsible for your own actions. Scanning or attacking targets without prior mutual consent can be illegal.
