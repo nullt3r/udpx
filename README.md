@@ -74,10 +74,14 @@ git clone https://github.com/nullt3r/udpx
 cd udpx
 go build ./cmd/udpx
 ```
+You can find the binary in the current directory.
+
 Or via go:
 ```
-go install -v github.com/nullt3r/udpx@latest
+go install -v github.com/nullt3r/udpx/cmd/udpx@latest
 ```
+
+After that, you can find the binary in `$HOME/go/bin/udpx`. If you want, move binary to `/usr/local/bin/` so you can call it directly.
 
 ## Supported services
 The UDPX supports more then 45 services. The most interesting are:
