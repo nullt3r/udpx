@@ -1,5 +1,5 @@
-# UDPX
-![Alt text](screenshots/showcase.png)
+![Alt text](screenshots/udpx_logo.png)
+# 
 Fast, single-packet UDP scanner written in Go. Supports discovery of more than 45 services with the possibility to add your own. It is lightweight - grab a binary and run it anywhere you want. Linux, Mac Os and Windows are supported but can be built for more platforms. The UDPX is not an internet-wide port scanner such as zgrab2 or zmap. The goal was to make easy to use and portable UDP scanner.
 
 * It is fast. It can scan whole /16 network in ~20 seconds for a single service.
@@ -13,6 +13,8 @@ Scanning UDP ports is very different than scanning TCP - you may, or may not get
 A typical technique is to send 0 byte UDP packets to each port on the target machine. If we receive an "ICMP Port Unreachable" message, then the port is closed. If an UDP response is received to the probe (unusual), the port is open. If we get no response at all, the state is open or filtered, meaning that the port is either open or packet filters are blocking the communication. This method is not implemented as there is no added value (UDPX tests only for specific protocols).
 
 ## Usage
+
+![Alt text](screenshots/showcase.png)
 
 To scan a single IP:
 ```
