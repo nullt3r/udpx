@@ -149,8 +149,11 @@ The complete list of supported services:
 * kerberos
 * ike
 
-# How to add your own probe?
+## How to add your own probe?
 Please send a feature request with protocol name and port and I will make it happen. Or add it on your own, the file `pkg/probes/probes.go` contains all available payloads. Specify the protocol name, port and data (hex-encoded packet).
 
 ## Disclaimer
 I am not responsible for any damages. You are responsible for your own actions. Scanning or attacking targets without prior mutual consent can be illegal.
+
+## License
+UDPX is distributed under [MIT License](https://raw.githubusercontent.com/nullt3r/udpx/main/LICENSE).
