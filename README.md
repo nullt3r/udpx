@@ -153,11 +153,11 @@ The complete list of supported services:
 Please send a feature request with protocol name and port and I will make it happen. Or add it on your own, the file `pkg/probes/probes.go` contains all available payloads. Specify the protocol name, port and packet data (hex-encoded).
 
 ```go
-	{
-		Name: "ike",
-		Data: "5b5e64c03e99b51100000000000000000110020000000000000001500000013400000001000000010000012801010008030000240101",
-		Port: 500,
-	},
+{
+    Name: "ike",
+    Data: "5b5e64c03e99b51100000000000000000110020000000000000001500000013400000001000000010000012801010008030000240101",
+    Port: 500,
+},
 ```
 
 ## Credits
