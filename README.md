@@ -5,7 +5,7 @@ Fast, single-packet UDP scanner written in Go. Currently supports discovery of m
 * It is fast. It can scan whole /16 network in ~20 seconds for a single service.
 * You don't need to instal libpcap or any other dependencies.
 * Can run on Linux, Mac Os, Windows. Or your Nethunter if you built it for Arm.
-* Customizable. You can add your probes and test for even more protocols!
+* Customizable. You can add your probes and test for even more protocols.
 
 ## How it works
 Scanning UDP ports is very different than scanning TCP - you may, or may not get any result back from probing an UDP port as UDP is a connectionless protocol. UDPX implements a single-packet based approach. A protocol-specific packet is sent to the defined service (port) and waits for a response. The limit is set to 500 ms by default and can be changed by `-w` flag. If the service sends a packet back within this time, it is certain that it is indeed listening on that port and is reported as open.
