@@ -17,7 +17,7 @@ A typical technique is to send 0 byte UDP packets to each port on the target mac
 ![Alt text](screenshots/showcase.png)
 
 
-> :warning: **Concurrency:** By default, concurrency is set to 32 connections only so you want crash anything. If you have a lot of hosts to scan, you can set it to 128 or 256 connections. Based on your hardware, connection stability, and ulimit (on *nix), you can run 512 or more concurrent connections, but this is not recommended.
+> :warning: **Concurrency:** By default, concurrency is set to 32 connections only (so you don't crash anything). If you have a lot of hosts to scan, you can set it to 128 or 256 connections. Based on your hardware, connection stability, and ulimit (on *nix), you can run 512 or more concurrent connections, but this is not recommended.
 
 To scan a single IP:
 ```
