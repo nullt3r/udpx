@@ -21,7 +21,7 @@ func main() {
       / / / / / / / /_/ /   / 
      / /_/ / /_/ / ____/   |  
      \____/_____/_/   /_/|_|  
-         v1.1.4, by @nullt3r
+         v1.0.4, by @nullt3r
 
 %s`, colors.SetColor().Cyan, colors.SetColor().Reset)
 
