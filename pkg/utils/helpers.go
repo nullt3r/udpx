@@ -11,7 +11,7 @@ func DataToReadableFormat(message []byte) []byte {
     var result []byte
     for _, b := range message {
         if b > 127 || b == '"' || b == '\n' || (b <= ' ' && b >= 0) {
-            result = append(result, []byte(fmt.Sprintf("\\x%02X", b))...)
+            result = append(result, []byte(fmt.Sprintf("\\\\x%02X", b))...)
         } else {
             result = append(result, b)
         }
