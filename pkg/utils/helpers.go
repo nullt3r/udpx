@@ -7,6 +7,18 @@ import (
 	"os"
 )
 
+func DataToReadableFormat(message []byte) []byte {
+    var result []byte
+    for _, b := range message {
+        if b > 127 || b == '"' || b == '\n' || (b <= ' ' && b >= 0) {
+            result = append(result, []byte(fmt.Sprintf("\\x%02X", b))...)
+        } else {
+            result = append(result, b)
+        }
+    }
+    return result
+}
+
 func IpsFromCidr(cidr string) ([]string, error) {
 	inc := func(ip net.IP) {
 		for j := len(ip) - 1; j >= 0; j-- {
@@ -67,6 +79,7 @@ func WriteChannel(lines chan string, path string) error {
 	}
 	return w.Flush()
 }
+
 
 func Deduplicate(stringSlice []string) []string {
 	keys := make(map[string]bool)

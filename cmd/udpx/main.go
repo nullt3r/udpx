@@ -11,6 +11,7 @@ import (
 	"github.com/nullt3r/udpx/pkg/probes"
 	"github.com/nullt3r/udpx/pkg/scan"
 	"github.com/nullt3r/udpx/pkg/utils"
+	"github.com/nullt3r/udpx/pkg/colors"
 )
 
 func main() {
@@ -20,23 +21,23 @@ func main() {
       / / / / / / / /_/ /   / 
      / /_/ / /_/ / ____/   |  
      \____/_____/_/   /_/|_|  
-         v1.0.3, by @nullt3r
+         v1.1.4, by @nullt3r
 
-%s`, utils.SetColor().Cyan, utils.SetColor().Reset)
+%s`, colors.SetColor().Cyan, colors.SetColor().Reset)
 
 	opts := utils.ParseOptions()
 
 	var targets []string
-	var ips []string
+	var toscan []string
 
 	if len(opts.Arg_t) == 0 && len(opts.Arg_tf) == 0 {
-		log.Fatalf("%s[!]%s Error, argument -t or -tf is required\n", utils.SetColor().Red, utils.SetColor().Reset)
+		log.Fatalf("%s[!]%s Error, argument -t or -tf is required\n", colors.SetColor().Red, colors.SetColor().Reset)
 	}
 
 	if len(opts.Arg_tf) != 0 {
 		val, err := utils.ReadFile(opts.Arg_tf)
 		if err != nil {
-			log.Fatalf("%s[!]%s Error while loading targets from file: %s", utils.SetColor().Red, utils.SetColor().Reset, err)
+			log.Fatalf("%s[!]%s Error while loading targets from file: %s", colors.SetColor().Red, colors.SetColor().Reset, err)
 		}
 		targets = val
 	} else if len(opts.Arg_t) != 0 {
@@ -48,12 +49,12 @@ func main() {
 			val, err := utils.IpsFromCidr(target)
 
 			if err != nil {
-				log.Fatalf("%s[!]%s Error parsing IP range: %s", utils.SetColor().Red, utils.SetColor().Reset, err)
+				log.Fatalf("%s[!]%s Error parsing IP range: %s", colors.SetColor().Red, colors.SetColor().Reset, err)
 			}
 
-			ips = append(ips, val...)
+			toscan = append(toscan, val...)
 		} else {
-			ips = append(ips, target)
+			toscan = append(toscan, target)
 		}
 	}
 
@@ -64,18 +65,18 @@ func main() {
 				break
 			}
 			if n == len(probes.Probes)-1 {
-				log.Fatalf("%s[!]%s Service '%s' is not supported", utils.SetColor().Red, utils.SetColor().Reset, opts.Arg_s)
+				log.Fatalf("%s[!]%s Service '%s' is not supported", colors.SetColor().Red, colors.SetColor().Reset, opts.Arg_s)
 			}
 		}
 	}
 
-	ips = utils.Deduplicate(ips)
-	ips_count := len(ips)
+	toscan = utils.Deduplicate(toscan)
+	toscan_count := len(toscan)
 	probe_count := len(probes.Probes)
 
 	if !opts.Arg_nr {
 		rand.Seed(time.Now().UnixNano())
-		rand.Shuffle(ips_count, func(i, j int) { ips[i], ips[j] = ips[j], ips[i] })
+		rand.Shuffle(toscan_count, func(i, j int) { toscan[i], toscan[j] = toscan[j], toscan[i] })
 	}
 
 	goroutineLimit := opts.Arg_c
@@ -83,25 +84,25 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	log.Printf("[+] Starting UDP scan on %d target(s)", ips_count)
+	log.Printf("[+] Starting UDP scan on %d target(s)", toscan_count)
 
-	wg.Add(ips_count)
+	wg.Add(toscan_count)
 
-	result := make(chan string, ips_count*probe_count)
+	result := make(chan string, toscan_count*probe_count)
 
-	for _, ip := range ips {
+	for _, t := range toscan {
 		guard <- struct{}{}
-		go func(ip string) {
+		go func(t string) {
 			defer wg.Done()
-			scanner := scan.Scanner{Ip: ip, Probes: probes.Probes, Arg_st: opts.Arg_st, Arg_sp: opts.Arg_sp, Result: result}
+			scanner := scan.Scanner{Target: t, Probes: probes.Probes, Arg_st: opts.Arg_st, Arg_sp: opts.Arg_sp, Result: result}
 			scanner.Run()
 			<-guard
-		}(ip)
+		}(t)
 	}
 
 	wg.Wait()
-
 	close(result)
+
 
 	if len(opts.Arg_o) != 0 {
 		log.Printf("[+] Writing results to '%s'", opts.Arg_o)
