@@ -11,7 +11,6 @@ import (
 
 	"github.com/nullt3r/udpx/pkg/probes"
 	"github.com/nullt3r/udpx/pkg/colors"
-	"github.com/nullt3r/udpx/pkg/utils"
 )
 
 type Scanner struct {
@@ -85,7 +84,7 @@ func (s Scanner) Run() {
 									log.Printf("[+] Received packet: %s%s%s...", colors.SetColor().Yellow, hex.EncodeToString(recv_Data), colors.SetColor().Reset)
 								}
 								
-								s.Result <- fmt.Sprintf(`{"address": "%s", "hostname": "%s", "protocol": "udp", "portid": "%d", "port_state": "open", "service_name": "%s", "service_product": null, "service_version": null, "extrainfo": "%s"}`, ip, domain, port, probe.Name, utils.EscapeByteArray(recv_Data))
+								s.Result <- fmt.Sprintf(`{"address": "%s", "hostname": "%s", "protocol": "udp", "portid": "%d", "port_state": "open", "service_name": "%s", "service_product": null, "service_version": null, "extrainfo": "%s"}`, ip, domain, port, probe.Name, hex.EncodeToString(recv_Data))
 								return
 							}
 						}
@@ -140,7 +139,7 @@ func (s Scanner) Run() {
 							if s.Arg_sp {
 								log.Printf("[+] Received packet: %s%s%s...", colors.SetColor().Yellow, hex.EncodeToString(recv_Data), colors.SetColor().Reset)
 							}
-							s.Result <- fmt.Sprintf(`{"address": "%s", "hostname": null, "protocol": "udp", "portid": %d, "port_state": "open", "service_name": "%s", "service_product": null, "service_version": null, "extrainfo": "%s"}`, ip, port, probe.Name, utils.EscapeByteArray(recv_Data))
+							s.Result <- fmt.Sprintf(`{"address": "%s", "hostname": null, "protocol": "udp", "portid": %d, "port_state": "open", "service_name": "%s", "service_product": null, "service_version": null, "extrainfo": "%s"}`, ip, port, probe.Name, hex.EncodeToString(recv_Data))
 							return
 						}
 					}

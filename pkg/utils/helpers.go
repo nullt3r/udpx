@@ -11,7 +11,7 @@ func EscapeByteArray(message []byte) []byte {
     var result []byte
     for _, b := range message {
         if b > 127 || b == '"' || b == '\n' || b == '\t' || (b <= ' ' && b >= 0) {
-            result = append(result, []byte(fmt.Sprintf("\\u%04x", b))...)
+            result = append(result, []byte(fmt.Sprintf("\\x%02x", b))...)
         } else {
             result = append(result, b)
         }

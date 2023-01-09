@@ -72,7 +72,7 @@ func main() {
 
 	toscan = utils.Deduplicate(toscan)
 	toscan_count := len(toscan)
-	probe_count := len(probes.Probes)
+	probe_count := probes.CountProbeCombinations()
 
 	if !opts.Arg_nr {
 		rand.Seed(time.Now().UnixNano())

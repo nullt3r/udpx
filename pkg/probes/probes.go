@@ -193,3 +193,11 @@ var Probes = []Probe{
 		Port: []int{1645, 1812},
 	},
 }
+
+func CountProbeCombinations() int {
+	combinations := 0
+	for _, p := range Probes {
+		combinations += len(p.Payloads) * len(p.Port)
+	}
+	return combinations
+}
