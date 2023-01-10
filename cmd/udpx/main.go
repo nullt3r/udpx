@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"os"
 
 	"github.com/nullt3r/udpx/pkg/probes"
 	"github.com/nullt3r/udpx/pkg/scan"
@@ -21,7 +22,7 @@ func main() {
       / / / / / / / /_/ /   / 
      / /_/ / /_/ / ____/   |  
      \____/_____/_/   /_/|_|  
-         v1.0.4, by @nullt3r
+         v1.0.5, by @nullt3r
 
 %s`, colors.SetColor().Cyan, colors.SetColor().Reset)
 
@@ -72,7 +73,6 @@ func main() {
 
 	toscan = utils.Deduplicate(toscan)
 	toscan_count := len(toscan)
-	probe_count := probes.CountProbeCombinations()
 
 	if !opts.Arg_nr {
 		rand.Seed(time.Now().UnixNano())
@@ -88,28 +88,45 @@ func main() {
 
 	wg.Add(toscan_count)
 
-	result := make(chan string, toscan_count*probe_count)
+	
+	result := make(chan string)
 
-	for _, t := range toscan {
-		guard <- struct{}{}
-		go func(t string) {
-			defer wg.Done()
-			scanner := scan.Scanner{Target: t, Probes: probes.Probes, Arg_st: opts.Arg_st, Arg_sp: opts.Arg_sp, Result: result}
-			scanner.Run()
-			<-guard
-		}(t)
-	}
+	go func() {
+		for _, t := range toscan {
+			guard <- struct{}{}
+			go func(t string) {
+				defer wg.Done()
+				scanner := scan.Scanner{Target: t, Probes: probes.Probes, Arg_st: opts.Arg_st, Arg_sp: opts.Arg_sp, Result: result}
+				scanner.Run()
+				<-guard
+			}(t)
+		}
 
-	wg.Wait()
-	close(result)
+	}()
 
+	go func() {
+		wg.Wait()
+		close(result)
+	}()
 
 	if len(opts.Arg_o) != 0 {
-		log.Printf("[+] Writing results to '%s'", opts.Arg_o)
-		utils.WriteChannel(result, opts.Arg_o)
+		log.Printf("[+] Using output file '%s'", opts.Arg_o)
+
+		f, err := os.Create(opts.Arg_o)
+
+		if err != nil {
+			log.Fatalf("%s[!]%s Can't create output file: %s", colors.SetColor().Red, colors.SetColor().Reset, err)
+		}
+
+		defer f.Close()
+
+		for r := range result {
+			f.WriteString(r + "\n")
+		}
+
 	}
 
-	log.Print("[+] Scan completed")
-
 	<-result
+
+	log.Print("[+] Scan completed")
 }
