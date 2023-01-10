@@ -2,12 +2,12 @@ package scan
 
 import (
 	"bufio"
-	"encoding/hex"
 	"fmt"
 	"log"
 	"net"
 	"strings"
 	"time"
+	"encoding/hex"
 
 	"github.com/nullt3r/udpx/pkg/probes"
 	"github.com/nullt3r/udpx/pkg/colors"
@@ -18,7 +18,15 @@ type Scanner struct {
 	Probes []probes.Probe
 	Arg_st int
 	Arg_sp bool
-	Result chan string
+	Channel chan Message
+}
+
+type Message struct {
+	Address      string     `json:"address"`
+	Hostname     string     `json:"hostname"`
+	Port         int        `json:"port"`
+	Service      string     `json:"service"`
+	ResponseData []byte     `json:"response_data"`
 }
 
 func (s Scanner) Run() {
@@ -79,12 +87,7 @@ func (s Scanner) Run() {
 							}
 
 							if recv_length != 0 {
-								log.Printf("%s[*]%s %s:%d (%s)", colors.SetColor().Cyan, colors.SetColor().Reset, ip, port, probe.Name)
-								if s.Arg_sp {
-									log.Printf("[+] Received packet: %s%s%s...", colors.SetColor().Yellow, hex.EncodeToString(recv_Data), colors.SetColor().Reset)
-								}
-								
-								s.Result <- fmt.Sprintf(`{"address": "%s", "hostname": "%s", "protocol": "udp", "portid": "%d", "port_state": "open", "service_name": "%s", "service_product": null, "service_version": null, "extrainfo": "%s"}`, ip, domain, port, probe.Name, hex.EncodeToString(recv_Data))
+								s.Channel <- Message{Address: ip, Hostname: domain, Port: port, Service: probe.Name, ResponseData: recv_Data}
 								return
 							}
 						}
@@ -135,11 +138,7 @@ func (s Scanner) Run() {
 						}
 
 						if recv_length != 0 {
-							log.Printf("%s[*]%s %s:%d (%s)", colors.SetColor().Cyan, colors.SetColor().Reset, ip, port, probe.Name)
-							if s.Arg_sp {
-								log.Printf("[+] Received packet: %s%s%s...", colors.SetColor().Yellow, hex.EncodeToString(recv_Data), colors.SetColor().Reset)
-							}
-							s.Result <- fmt.Sprintf(`{"address": "%s", "hostname": null, "protocol": "udp", "portid": %d, "port_state": "open", "service_name": "%s", "service_product": null, "service_version": null, "extrainfo": "%s"}`, ip, port, probe.Name, hex.EncodeToString(recv_Data))
+							s.Channel <- Message{Address: ip, Port: port, Service: probe.Name, ResponseData: recv_Data}
 							return
 						}
 					}

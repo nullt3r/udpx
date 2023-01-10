@@ -8,6 +8,8 @@ import (
 	"sync"
 	"time"
 	"os"
+	"encoding/hex"
+	"encoding/json"
 
 	"github.com/nullt3r/udpx/pkg/probes"
 	"github.com/nullt3r/udpx/pkg/scan"
@@ -22,7 +24,7 @@ func main() {
       / / / / / / / /_/ /   / 
      / /_/ / /_/ / ____/   |  
      \____/_____/_/   /_/|_|  
-         v1.0.5, by @nullt3r
+         v1.0.6, by @nullt3r
 
 %s`, colors.SetColor().Cyan, colors.SetColor().Reset)
 
@@ -88,14 +90,14 @@ func main() {
 
 	wg.Add(toscan_count)
 
-	result := make(chan string)
+	comm := make(chan scan.Message)
 
 	go func() {
 		for _, t := range toscan {
 			guard <- struct{}{}
 			go func(t string) {
 				defer wg.Done()
-				scanner := scan.Scanner{Target: t, Probes: probes.Probes, Arg_st: opts.Arg_st, Arg_sp: opts.Arg_sp, Result: result}
+				scanner := scan.Scanner{Target: t, Probes: probes.Probes, Arg_st: opts.Arg_st, Arg_sp: opts.Arg_sp, Channel: comm}
 				scanner.Run()
 				<-guard
 			}(t)
@@ -105,27 +107,50 @@ func main() {
 
 	go func() {
 		wg.Wait()
-		close(result)
+		close(comm)
 	}()
 
 	if len(opts.Arg_o) != 0 {
-		log.Printf("[+] Using output file '%s'", opts.Arg_o)
-
 		f, err := os.Create(opts.Arg_o)
-
-		if err != nil {
-			log.Fatalf("%s[!]%s Can't create output file: %s", colors.SetColor().Red, colors.SetColor().Reset, err)
-		}
 
 		defer f.Close()
 
-		for r := range result {
-			f.WriteString(r + "\n")
+		if err != nil {
+			log.Fatalf("%s[!]%s Error creating output file: %s", colors.SetColor().Red, colors.SetColor().Reset, err)
 		}
 
+		log.Printf("[+] Results will be written to: %s", opts.Arg_o)
 	}
 
-	<-result
+	for message := range comm {
+		log.Printf("%s[*]%s %s:%d (%s)", colors.SetColor().Cyan, colors.SetColor().Reset, message.Address, message.Port, message.Service)
+
+		if opts.Arg_sp {
+			log.Printf("[+] Received packet: %s%s%s...", colors.SetColor().Yellow, hex.EncodeToString(message.ResponseData), colors.SetColor().Reset)
+		}
+
+		if len(opts.Arg_o) != 0 {
+			json, err := json.Marshal(&message)
+	
+			if err != nil {
+				log.Fatalf("%s[!]%s Error: %s", colors.SetColor().Red, colors.SetColor().Reset, err)
+			}
+
+			f, err := os.OpenFile(opts.Arg_o, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+			
+			if err != nil {
+				log.Fatalf("%s[!]%s Error opening output file: %s", colors.SetColor().Red, colors.SetColor().Reset, err)
+			}
+			
+			defer f.Close()
+			
+			if _, err = f.WriteString(string(json) + "\n"); err != nil {
+				log.Fatalf("%s[!]%s Error writing output file: %s", colors.SetColor().Red, colors.SetColor().Reset, err)
+			}
+		}
+	}
+
+	<-comm
 
 	log.Print("[+] Scan completed")
 }
