@@ -88,7 +88,6 @@ func main() {
 
 	wg.Add(toscan_count)
 
-	
 	result := make(chan string)
 
 	go func() {
