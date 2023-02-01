@@ -2,31 +2,32 @@ package scan
 
 import (
 	"bufio"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"net"
 	"strings"
 	"time"
-	"encoding/hex"
 
-	"github.com/nullt3r/udpx/pkg/probes"
 	"github.com/nullt3r/udpx/pkg/colors"
+	"github.com/nullt3r/udpx/pkg/probes"
 )
 
 type Scanner struct {
-	Target string
-	Probes []probes.Probe
-	Arg_st int
-	Arg_sp bool
+	Target  string
+	Probes  []probes.Probe
+	Arg_st  int
+	Arg_sp  bool
 	Channel chan Message
 }
 
 type Message struct {
-	Address      string     `json:"address"`
-	Hostname     string     `json:"hostname"`
-	Port         int        `json:"port"`
-	Service      string     `json:"service"`
-	ResponseData []byte     `json:"response_data"`
+	Address      string `json:"address"`
+	Hostname     string `json:"hostname"`
+	Port         int    `json:"port"`
+	Service      string `json:"service"`
+	ResponseData []byte `json:"response_data"`
+	Timestamp    int64  `json:"timestamp"`
 }
 
 func (s Scanner) Run() {
@@ -108,6 +109,8 @@ func (s Scanner) Run() {
 					for _, payload := range probe.Payloads {
 						recv_Data := make([]byte, 32)
 
+						now := time.Now()
+
 						c, err := net.Dial("udp", fmt.Sprint(ip, ":", port))
 
 						if err != nil {
@@ -138,7 +141,7 @@ func (s Scanner) Run() {
 						}
 
 						if recv_length != 0 {
-							s.Channel <- Message{Address: ip, Port: port, Service: probe.Name, ResponseData: recv_Data}
+							s.Channel <- Message{Address: ip, Port: port, Service: probe.Name, ResponseData: recv_Data, Timestamp: now.Unix()}
 							return
 						}
 					}

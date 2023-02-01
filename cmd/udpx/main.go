@@ -1,20 +1,20 @@
 package main
 
 import (
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
 	"strings"
 	"sync"
 	"time"
-	"os"
-	"encoding/hex"
-	"encoding/json"
 
+	"github.com/nullt3r/udpx/pkg/colors"
 	"github.com/nullt3r/udpx/pkg/probes"
 	"github.com/nullt3r/udpx/pkg/scan"
 	"github.com/nullt3r/udpx/pkg/utils"
-	"github.com/nullt3r/udpx/pkg/colors"
 )
 
 func main() {
@@ -24,7 +24,7 @@ func main() {
       / / / / / / / /_/ /   / 
      / /_/ / /_/ / ____/   |  
      \____/_____/_/   /_/|_|  
-         v1.0.6, by @nullt3r
+         v1.0.7, by @nullt3r
 
 %s`, colors.SetColor().Cyan, colors.SetColor().Reset)
 
@@ -90,7 +90,7 @@ func main() {
 
 	wg.Add(toscan_count)
 
-	comm := make(chan scan.Message)
+	comm := make(chan scan.Message, 10)
 
 	go func() {
 		for _, t := range toscan {
@@ -131,19 +131,19 @@ func main() {
 
 		if len(opts.Arg_o) != 0 {
 			json, err := json.Marshal(&message)
-	
+
 			if err != nil {
 				log.Fatalf("%s[!]%s Error: %s", colors.SetColor().Red, colors.SetColor().Reset, err)
 			}
 
 			f, err := os.OpenFile(opts.Arg_o, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
-			
+
 			if err != nil {
 				log.Fatalf("%s[!]%s Error opening output file: %s", colors.SetColor().Red, colors.SetColor().Reset, err)
 			}
-			
+
 			defer f.Close()
-			
+
 			if _, err = f.WriteString(string(json) + "\n"); err != nil {
 				log.Fatalf("%s[!]%s Error writing output file: %s", colors.SetColor().Red, colors.SetColor().Reset, err)
 			}
