@@ -6,6 +6,8 @@ Fast and lightweight, UDPX is a single-packet UDP scanner written in Go that sup
 * You don't need to instal libpcap or any other dependencies.
 * Can run on Linux, Mac Os, Windows. Or your Nethunter if you built it for Arm.
 * Customizable. You can add your probes and test for even more protocols.
+* Stores results in JSONL format.
+* Scans also domain names.
 
 ## How it works
 Scanning UDP ports is very different than scanning TCP - you may, or may not get any result back from probing an UDP port as UDP is a connectionless protocol. UDPX implements a single-packet based approach. A protocol-specific packet is sent to the defined service (port) and waits for a response. The limit is set to 500 ms by default and can be changed by `-w` flag. If the service sends a packet back within this time, it is certain that it is indeed listening on that port and is reported as open.
@@ -40,6 +42,12 @@ Target can be:
 * Domain
 
 IPv6 is supported.
+
+If you want to store the results, use flag `-o [filename]`. Output is in JSONL format, as can be seen bellow:
+
+```jsonl
+{"address":"45.33.32.156","hostname":"scanme.nmap.org","port":123,"service":"ntp","response_data":"JAME6QAAAEoAAA56LU9vp+d2ZPwOYIyDxU8jS3GxUvM="}
+```
 
 ## Options
 ```
@@ -154,9 +162,9 @@ Please send a feature request with protocol name and port and I will make it hap
 
 ```go
 {
-    Name: "ike",
-    Data: "5b5e64c03e99b51100000000000000000110020000000000000001500000013400000001000000010000012801010008030000240101",
-    Port: 500,
+        Name: "ike",
+        Payloads: []string{"5b5e64c03e99b51100000000000000000110020000000000000001500000013400000001000000010000012801010008030000240101"},
+        Port: []int{500, 4500},
 },
 ```
 

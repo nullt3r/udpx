@@ -113,11 +113,11 @@ func main() {
 	if len(opts.Arg_o) != 0 {
 		f, err := os.Create(opts.Arg_o)
 
-		defer f.Close()
-
 		if err != nil {
 			log.Fatalf("%s[!]%s Error creating output file: %s", colors.SetColor().Red, colors.SetColor().Reset, err)
 		}
+
+		defer f.Close()
 
 		log.Printf("[+] Results will be written to: %s", opts.Arg_o)
 	}
@@ -142,11 +142,10 @@ func main() {
 				log.Fatalf("%s[!]%s Error opening output file: %s", colors.SetColor().Red, colors.SetColor().Reset, err)
 			}
 
-			defer f.Close()
-
 			if _, err = f.WriteString(string(json) + "\n"); err != nil {
 				log.Fatalf("%s[!]%s Error writing output file: %s", colors.SetColor().Red, colors.SetColor().Reset, err)
 			}
+
 		}
 	}
 
