@@ -38,7 +38,7 @@ func ParseOptions() *Options {
 	flag.BoolVar(&opts.Arg_nr, "nr", false, "Do not randomize addresses")
 	flag.IntVar(&opts.Arg_st, "w", 500, "Maximum time to wait for a response (socket timeout) in ms")
 	flag.BoolVar(&opts.Arg_sp, "sp", false, "Show received packets (only first 32 bytes)")
-	flag.IntVar(&opts.Arg_b, "b", 32, "Response buffer size in bytes")
+	flag.IntVar(&opts.Arg_b, "b", 32, "Response buffer size in bytes (recommended 512 for complete response_data, default 32, max 4096)")
 	flag.BoolVar(&opts.Arg_q, "q", false, "Quiet mode: suppress banner and progress log lines (results still emitted)")
 	// Version flag: register both -v and -version as aliases pointing to the same variable
 	flag.BoolVar(&opts.Arg_version, "v", false, "Print version and exit")
@@ -136,9 +136,9 @@ func ParseOptions() *Options {
 			_, usage := flag.UnquoteUsage(f)
 			desc := strings.ReplaceAll(usage, "\n", "\n    \t")
 			
-			// Special handling for -b flag to add recommendation text
+			// Special handling for -b flag - don't append default since it's already in the description
 			if f.Name == "b" {
-				desc += " (recommended 512 for complete response_data, default " + f.DefValue + ")"
+				// Do nothing - description already contains the full text
 			} else if !isZeroValue(f, f.DefValue) {
 				// Append "(default ...)" for non-zero defaults, mirroring Go's
 				// stdlib PrintDefaults. Strings are quoted, everything else bare.
@@ -160,6 +160,7 @@ func ParseOptions() *Options {
 		fmt.Fprintf(out, "    %s 192.168.1.1 192.168.2.0/24\n", os.Args[0])
 		fmt.Fprintf(out, "    %s -t 192.168.1.1 192.168.2.0/24\n", os.Args[0])
 		fmt.Fprintf(out, "    %s -tf targets.txt\n", os.Args[0])
+		fmt.Fprintf(out, "    %s -q -o - -s dns,ntp,snmp,mssql -b 512 192.168.1.0/24\n", os.Args[0])
 	}
 
 	flag.Parse()
