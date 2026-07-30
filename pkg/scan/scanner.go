@@ -18,6 +18,8 @@ type Scanner struct {
 	Probes  []probes.Probe
 	Arg_st  int
 	Arg_sp  bool
+	Arg_b   int     // Response buffer size
+	SrcIP   net.IP // nil = let kernel pick; non-nil = bind UDP socket to this local IP
 	Channel chan Message
 }
 
@@ -28,6 +30,18 @@ type Message struct {
 	Service      string `json:"service"`
 	ResponseData []byte `json:"response_data"`
 	Timestamp    int64  `json:"timestamp"`
+}
+
+// dialUDP dials a UDP "address:port". If s.SrcIP is non-nil, the socket is
+// bound to that local IP (ephemeral port) before connecting, so probes egress
+// via the interface owning that IP regardless of the kernel's default route
+// pick. When SrcIP is nil, behaviour is identical to the original net.Dial.
+func (s Scanner) dialUDP(addr string) (net.Conn, error) {
+	if s.SrcIP == nil {
+		return net.Dial("udp", addr)
+	}
+	d := net.Dialer{LocalAddr: &net.UDPAddr{IP: s.SrcIP}}
+	return d.Dial("udp", addr)
 }
 
 func (s Scanner) Run() {
@@ -56,9 +70,9 @@ func (s Scanner) Run() {
 					func() {
 
 						for _, payload := range probe.Payloads {
-							recv_Data := make([]byte, 32)
+							recv_Data := make([]byte, s.Arg_b)
 
-							c, err := net.Dial("udp", fmt.Sprint(ip, ":", port))
+							c, err := s.dialUDP(fmt.Sprint(ip, ":", port))
 
 							if err != nil {
 								log.Printf("%s[!]%s [%s] Error connecting to host '%s': %s", colors.SetColor().Red, colors.SetColor().Reset, probe.Name, ip, err)
@@ -107,11 +121,11 @@ func (s Scanner) Run() {
 			for _, port := range probe.Port {
 				func() {
 					for _, payload := range probe.Payloads {
-						recv_Data := make([]byte, 32)
+						recv_Data := make([]byte, s.Arg_b)
 
 						now := time.Now()
 
-						c, err := net.Dial("udp", fmt.Sprint(ip, ":", port))
+						c, err := s.dialUDP(fmt.Sprint(ip, ":", port))
 
 						if err != nil {
 							log.Printf("%s[!]%s [%s] Error connecting to host '%s': %s", colors.SetColor().Red, colors.SetColor().Reset, probe.Name, ip, err)

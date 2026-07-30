@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
+
+	"github.com/nullt3r/udpx/pkg/targets"
 )
 
 func EscapeByteArray(message []byte) []byte {
@@ -95,4 +98,98 @@ func Deduplicate(stringSlice []string) []string {
 		}
 	}
 	return list
+}
+
+// ValidateLocalIP parses s as an IP and verifies it is currently assigned to
+// some local network interface. Returns the parsed net.IP on success.
+//
+// Used to back the -src-ip flag: failing fast here gives a clear error
+// instead of a per-probe "bind: cannot assign requested address" later.
+func ValidateLocalIP(s string) (net.IP, error) {
+	ip := net.ParseIP(s)
+	if ip == nil {
+		return nil, fmt.Errorf("not a valid IP address: %q", s)
+	}
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return nil, fmt.Errorf("enumerating local interface addresses: %w", err)
+	}
+	for _, a := range addrs {
+		var local net.IP
+		switch v := a.(type) {
+		case *net.IPNet:
+			local = v.IP
+		case *net.IPAddr:
+			local = v.IP
+		}
+		if local != nil && local.Equal(ip) {
+			return ip, nil
+		}
+	}
+	return nil, fmt.Errorf("IP %s is not assigned to any local interface", ip)
+}
+
+// BuildExcludeSet expands exclude targets (IPs, CIDRs, octet-ranges, hostnames)
+// from both a comma-separated list (`list`) and a file (`file`) into a set of
+// IP strings to remove from the scan set. Uses the Extended Target Syntax
+// (pkg/targets.Parse) so both --exclude and --excludefile support the same
+// target formats.
+//
+// File format: targets are separated by newlines, spaces, or tabs.
+// A '#' marks an end-of-line comment — everything from '#' to
+// end-of-line is ignored on each line.
+//
+// Malformed entries fail fast with a clear error (consistent with -src-ip).
+func BuildExcludeSet(list, file string) (map[string]struct{}, error) {
+	out := make(map[string]struct{})
+
+	add := func(entry string) error {
+		entry = strings.TrimSpace(entry)
+		if entry == "" {
+			return nil
+		}
+		ips, err := targets.Parse(entry)
+		if err != nil {
+			return fmt.Errorf("exclude: %w", err)
+		}
+		for _, ip := range ips {
+			out[ip] = struct{}{}
+		}
+		return nil
+	}
+
+	if list != "" {
+		for _, e := range strings.Split(list, ",") {
+			if err := add(e); err != nil {
+				return nil, err
+			}
+		}
+	}
+	if file != "" {
+		data, err := os.ReadFile(file)
+		if err != nil {
+			return nil, fmt.Errorf("excludefile: %w", err)
+		}
+		// Per-line: strip '#'-to-EOL comments first, then split the
+		// remaining content on spaces/tabs/newlines. Doing the comment
+		// strip line-by-line (rather than treating '#' as a token-prefix
+		// marker) is necessary so an inline comment after a target on the
+		// same line works: "192.0.2.1   # skip the gateway".
+		var b strings.Builder
+		for _, line := range strings.Split(string(data), "\n") {
+			if i := strings.IndexByte(line, '#'); i >= 0 {
+				line = line[:i]
+			}
+			b.WriteString(line)
+			b.WriteByte('\n')
+		}
+		for _, e := range strings.FieldsFunc(b.String(), func(r rune) bool {
+			return r == '\n' || r == '\r' || r == ' ' || r == '\t'
+		}) {
+			if err := add(e); err != nil {
+				return nil, err
+			}
+		}
+	}
+	return out, nil
 }
