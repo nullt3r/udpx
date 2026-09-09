@@ -6,7 +6,7 @@ import "fmt"
 const (
 	MajorVersion = 1
 	MinorVersion = 0
-	PatchVersion = 8
+	PatchVersion = 9
 )
 
 // Version returns the full version string

@@ -202,7 +202,7 @@ func main() {
 			guard <- struct{}{}
 			go func(t string) {
 				defer wg.Done()
-				scanner := scan.Scanner{Target: t, Probes: probes.Probes, Arg_st: opts.Arg_st, Arg_sp: opts.Arg_sp, Arg_b: opts.Arg_b, SrcIP: srcIP, Channel: comm}
+				scanner := scan.Scanner{Target: t, Probes: probes.Probes, Arg_st: opts.Arg_st, Arg_sp: opts.Arg_sp, Arg_b: opts.Arg_b, Arg_retries: opts.Arg_retries, SrcIP: srcIP, Channel: comm}
 				scanner.Run()
 				<-guard
 			}(t)

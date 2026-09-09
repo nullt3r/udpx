@@ -14,13 +14,14 @@ import (
 )
 
 type Scanner struct {
-	Target  string
-	Probes  []probes.Probe
-	Arg_st  int
-	Arg_sp  bool
-	Arg_b   int     // Response buffer size
-	SrcIP   net.IP // nil = let kernel pick; non-nil = bind UDP socket to this local IP
-	Channel chan Message
+	Target     string
+	Probes     []probes.Probe
+	Arg_st     int
+	Arg_sp     bool
+	Arg_b      int     // Response buffer size
+	Arg_retries int    // Extra retry attempts per probe on no-response (0 = single attempt)
+	SrcIP      net.IP // nil = let kernel pick; non-nil = bind UDP socket to this local IP
+	Channel    chan Message
 }
 
 type Message struct {
@@ -70,34 +71,56 @@ func (s Scanner) Run() {
 					func() {
 
 						for _, payload := range probe.Payloads {
-							recv_Data := make([]byte, s.Arg_b)
-
-							c, err := s.dialUDP(fmt.Sprint(ip, ":", port))
-
-							if err != nil {
-								log.Printf("%s[!]%s [%s] Error connecting to host '%s': %s", colors.SetColor().Red, colors.SetColor().Reset, probe.Name, ip, err)
-								return
-							}
-
-							defer c.Close()
-
 							Data, err := hex.DecodeString(payload)
 
 							if err != nil {
 								log.Fatalf("%s[!]%s Error in decoding payload. Problem probe: '%s'", colors.SetColor().Red, colors.SetColor().Reset, probe.Name)
 							}
 
-							_, err = c.Write([]byte(Data))
+							var recv_Data []byte
+							var recv_length int
+							var readErr error
 
-							if err != nil {
-								return
+							// Attempt 0 is the original single-shot probe; each subsequent
+							// attempt (up to s.Arg_retries) re-sends the SAME payload and
+							// waits socketTimeout again, to recover from a lost probe or a
+							// lost reply. UDP is lossy and udpx sends exactly one packet per
+							// attempt, so without this loop a single loss is a silent,
+							// permanent miss for the whole run (see the -retries flag help
+							// text in opts_parser.go). Dial/write errors are NOT retried
+							// here — unchanged from the original behaviour — only a read
+							// timeout (no response within socketTimeout) is.
+							for attempt := 0; attempt <= s.Arg_retries; attempt++ {
+								recv_Data = make([]byte, s.Arg_b)
+
+								c, err := s.dialUDP(fmt.Sprint(ip, ":", port))
+
+								if err != nil {
+									log.Printf("%s[!]%s [%s] Error connecting to host '%s': %s", colors.SetColor().Red, colors.SetColor().Reset, probe.Name, ip, err)
+									return
+								}
+
+								_, err = c.Write([]byte(Data))
+
+								if err != nil {
+									c.Close()
+									return
+								}
+
+								c.SetReadDeadline(time.Now().Add(socketTimeout))
+
+								recv_length, readErr = bufio.NewReader(c).Read(recv_Data)
+								c.Close()
+
+								if readErr == nil {
+									break
+								}
+								// readErr != nil: no response within socketTimeout on this
+								// attempt; loop again (re-send the same payload) if retry
+								// attempts remain.
 							}
 
-							c.SetReadDeadline(time.Now().Add(socketTimeout))
-
-							recv_length, err := bufio.NewReader(c).Read(recv_Data)
-
-							if err != nil {
+							if readErr != nil {
 								return
 							}
 
@@ -121,36 +144,47 @@ func (s Scanner) Run() {
 			for _, port := range probe.Port {
 				func() {
 					for _, payload := range probe.Payloads {
-						recv_Data := make([]byte, s.Arg_b)
-
-						now := time.Now()
-
-						c, err := s.dialUDP(fmt.Sprint(ip, ":", port))
-
-						if err != nil {
-							log.Printf("%s[!]%s [%s] Error connecting to host '%s': %s", colors.SetColor().Red, colors.SetColor().Reset, probe.Name, ip, err)
-							return
-						}
-
-						defer c.Close()
-
 						Data, err := hex.DecodeString(payload)
 
 						if err != nil {
 							log.Fatalf("%s[!]%s Error in decoding payload. Problem probe: '%s'", colors.SetColor().Red, colors.SetColor().Reset, probe.Name)
 						}
 
-						_, err = c.Write([]byte(Data))
+						now := time.Now()
 
-						if err != nil {
-							return
+						var recv_Data []byte
+						var recv_length int
+						var readErr error
+
+						// See the domain-branch comment above for why this loop exists.
+						for attempt := 0; attempt <= s.Arg_retries; attempt++ {
+							recv_Data = make([]byte, s.Arg_b)
+
+							c, err := s.dialUDP(fmt.Sprint(ip, ":", port))
+
+							if err != nil {
+								log.Printf("%s[!]%s [%s] Error connecting to host '%s': %s", colors.SetColor().Red, colors.SetColor().Reset, probe.Name, ip, err)
+								return
+							}
+
+							_, err = c.Write([]byte(Data))
+
+							if err != nil {
+								c.Close()
+								return
+							}
+
+							c.SetReadDeadline(time.Now().Add(socketTimeout))
+
+							recv_length, readErr = bufio.NewReader(c).Read(recv_Data)
+							c.Close()
+
+							if readErr == nil {
+								break
+							}
 						}
 
-						c.SetReadDeadline(time.Now().Add(socketTimeout))
-
-						recv_length, err := bufio.NewReader(c).Read(recv_Data)
-
-						if err != nil {
+						if readErr != nil {
 							return
 						}
 

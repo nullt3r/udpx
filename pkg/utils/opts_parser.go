@@ -25,6 +25,7 @@ type Options struct {
 	Arg_exclude     string
 	Arg_excludefile string
 	Arg_b           int   // Response buffer size (default 32)
+	Arg_retries     int   // Extra retry attempts per probe on no-response (default 0)
 	PositionalArgs  []string  // Positional arguments (targets) after all flags
 }
 
@@ -40,6 +41,7 @@ func ParseOptions() *Options {
 	flag.BoolVar(&opts.Arg_sp, "sp", false, "Show received packets (only first 32 bytes)")
 	flag.IntVar(&opts.Arg_b, "b", 32, "Response buffer size in bytes (recommended 512 for complete response_data, default 32, max 4096)")
 	flag.BoolVar(&opts.Arg_q, "q", false, "Quiet mode: suppress banner and progress log lines (results still emitted)")
+	flag.IntVar(&opts.Arg_retries, "retries", 0, "Extra retry attempts per probe when no response is received within -w (0 = no retries, single attempt only, default). Each retry re-sends the SAME probe payload and waits -w ms again; it does not change -w itself. Added because udpx is a single-packet scanner over lossy UDP: a lost probe or a lost reply is otherwise a silent, permanent miss for that run, with no way to distinguish 'not listening' from 'packet lost'.")
 	// Version flag: register both -v and -version as aliases pointing to the same variable
 	flag.BoolVar(&opts.Arg_version, "v", false, "Print version and exit")
 	flag.BoolVar(&opts.Arg_version, "version", false, "Print version and exit")
@@ -116,6 +118,8 @@ func ParseOptions() *Options {
 				argName = "ms"
 			case "b":
 				argName = "bufsize"
+			case "retries":
+				argName = "num"
 			case "src-ip":
 				argName = "ip-address"
 			case "exclude":
